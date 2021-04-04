@@ -1,0 +1,7 @@
+{
+  "diffEditor.wordWrap": "on",
+  "prettier.tabWidth": 3,
+  "prettier.useTabs": true,
+  "editor.tabSize": 2,
+  "vetur.format.options.useTabs": true
+}
