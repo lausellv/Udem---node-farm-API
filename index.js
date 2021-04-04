@@ -6,7 +6,7 @@ const url = require('url');
 ////////////////////////////////////////
 // FILES  fs module and the readFileSync() and readFile() (async) methods , writeFile() too
 // blocking code  - synchronous code
-// const hello = ' Hello World';
+// const hello = ' Hello World';  
 // console.log(hello);
 
 // const textIn = fs.readFileSync('./txt/input.txt', 'utf-8');
