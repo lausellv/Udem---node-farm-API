@@ -20,9 +20,6 @@ const replaceTemplate = require('./modules/replaceTemplate');
 // // });
 
 // fs.writeFileSync('./txt/output.txt', textOut);
-// console.log('File has been written!');
-
-// non-blocking async code
 //  fs.readFile('./txt/start.txt', 'utf-8', (err, data1)=> {
 //        if (err) {
 //               console.log ('Error! 🥴')
