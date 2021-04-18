@@ -1,13 +1,16 @@
-const fs = require('fs'); // enables interaction with the file system
-const http = require('http'); // gives us networking capabilities such as building an http server
-const url = require('url');
-const replaceTemplate = require('./modules/replaceTemplate');
+const fs = require('fs'), // enables interaction with the file system
+	http = require('http'), // gives us networking capabilities such as building an http server
+	url = require('url');
+	//replaceTemplate = require('./modules/replaceTemplate');
+
+// requiring a third party module
+//const slugify = require('slugify');
 
 ///
 ////////////////////////////////////////
 // FILES  fs module and the readFileSync() and readFile() (async) methods , writeFile() too
 // blocking code  - synchronous code
-// const hello = ' Hello World';  
+// const hello = ' Hello World';
 // console.log(hello);
 
 // const textIn = fs.readFileSync('./txt/input.txt', 'utf-8');
@@ -40,62 +43,88 @@ const replaceTemplate = require('./modules/replaceTemplate');
 //////////////////////////////////////
 // SERVER  http module  using the createServer() method which takes a req and res
 
+// we can do the sync version for each of the templates bc we are on the top level code (only executed once)
+const replaceTemplate = (temp, product)=>{
+	let output = temp.replace("{%PRODUCTNAME%}", product.productName);  // we don't use the quoutes and used instead regular {palceholder}/g for global
+output=output.replace(/{%IMAGE%}/g, product.image);
+output=output.replace("{%PRICE%}", product.price);
+output=output.replace("{%ORIGIN%}", product.from);
+output=output.replace("{%NUTRIENTS%}", product.nutrients);
+output=output.replace("{%QUANTITY%}", product.quantity);
+output=output.replace("{%DESCRIPTION%}", product.description);
+output=output.replace("{%ID%}", product.id);
+if(!product.organic){ output=output.replace("{%NOT_ORGANIC%}", "not-organic");}
+return output;
+}
 
-// we can do the syn version bc we are on the top level code (only executed once)
-const tempOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, 'utf-8');
-const tempCard = fs.readFileSync(`${__dirname}/templates/template-card.html`, 'utf-8');
-const tempProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`, 'utf-8');
+const tempOverview = fs.readFileSync(
+	__dirname + '/templates/overview-template.html',
+	'utf-8'
+);
+const tempCard = fs.readFileSync(
+	`${__dirname}/templates/card-template.html`,
+	'utf-8'
+);
+const tempProduct = fs.readFileSync(
+	`${__dirname}/templates/product-template.html`,
+	'utf-8'
+);
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 
-const dataObject = JSON.parse(data);  // this an array of 5 objects 
+const dataObject = JSON.parse(data); // this an array of 5 objects
 
+//const slugs = dataObject.map((el) => slugify(el.productName, { lower: true }));
+// console.log(slugify('Fresh Avocados', { lower: true }));
+// console.log(slugs);
+
+//SERVER
 const server = http.createServer((req, res) => {
-	
-const {query, pathname} = url.parse(req.url, true)  // E6 object destructuring
-	// OVERVIEW OR HOME PAGE
+	const pathName = req.url;
+	//const {query, pathname} = url.parse(req.url, true)  // E6 object destructuring
 
-	if (pathname === '/' || pathname === '/overview') {
+
+
+	// OVERVIEW OR HOME PAGE
+	if (pathName === '/' || pathName === '/overview') {
 		// we can read the template overview outside since it's a constant
 		// so we will do so in a function outside to simplify the code
+		res.writeHead(200, { 'content-type': 'text.html' });
 		
-		
-		 res.writeHead(200, {'content-type': 'text.html'});
-		// res.end('<h1>This is the overview</h1>');
-	
-		
-const cardsHtml = dataObject.map(el => replaceTemplate(tempCard, el)).join('');  //join all the elements of the array into one string
- //console.log(cardsHtml);
- const output= tempOverview.replace('{%PRODUCT_CARDS%}', cardsHtml);
-	res.end(output);
 
-		///PRODUCT PAGE
-	} else if (pathname == '/product') {
+
+		// // res.end('<h1>This is the overview</h1>');
+
+		const cardsHtml = dataObject.map( product => replaceTemplate(tempCard, product)).join(''); 	//join all the elements of the array into one string
+		
+	 const output = tempOverview.replace('{%PRODUCT_CARDS%}', cardsHtml);
+		 res.end(output);
+	
+	///PRODUCT PAGE 
+}
+else if (pathName == '/product') {
 		res.writeHead(200, { 'Content-type': 'text.html' });
 		const product = dataObject[query.id];
 		const output = replaceTemplate(tempProduct, product);
 		//console.log(query);
 		res.end(output);
 
-
-
-
-
-		///API PAGE
-	} else if (pathName === '/api') {
-		res.writeHead(200, { 'Content-type': 'application/json' });
-		//fs.readFile('./dev-data/data.json')  // best practice to use __dirname instead of ./
-		//	fs.readFile(`${__dirname}/dev-data/data.json`, 'utf8', (err, data)=>{
-		//	const productData = JSON.parse(data)
-		//res.end('<h1>API</h1>');
+		
+	} 
+	///API PAGE
+	else if (pathName === '/api') {
+		res.writeHead(200, {
+			'Content-type': 'application/json'});
 		res.end(data);
 
-		///NOT FOUND
-	} else {
+		
+	} 
+	///NOT FOUND
+	else {
 		res.writeHead(404, {
 			'Content-type': 'text/html',
 			'My-own-header': 'hello-world',
 		});
-		res.end('<h1>page not found!</h1>');
+		res.end('<h1>Page not found!</h1>');
 	}
 });
 
