@@ -45,9 +45,9 @@ const fs = require('fs'), // enables interaction with the file system
 
 // we can do the sync version for each of the templates bc we are on the top level code (only executed once)
 const replaceTemplate = (temp, product)=>{
-	let output = temp.replace("{%PRODUCTNAME%}", product.productName);  // we don't use the quoutes and used instead regular {palceholder}/g for global
+	let output = temp.replace(/{%PRODUCTNAME%}/g, product.productName);  // we don't use the quoutes and used instead regular {palceholder}/g for global
 output=output.replace(/{%IMAGE%}/g, product.image);
-output=output.replace("{%PRICE%}", product.price);
+output=output.replace(/{%PRICE%}/g, product.price);
 output=output.replace("{%ORIGIN%}", product.from);
 output=output.replace("{%NUTRIENTS%}", product.nutrients);
 output=output.replace("{%QUANTITY%}", product.quantity);
@@ -79,13 +79,16 @@ const dataObject = JSON.parse(data); // this an array of 5 objects
 
 //SERVER
 const server = http.createServer((req, res) => {
-	const pathName = req.url;
-	//const {query, pathname} = url.parse(req.url, true)  // E6 object destructuring
+	
+console.log(url.parse(req.url));
+
+	
+	const {query, pathname} = url.parse(req.url, true)  // E6 object destructuring
 
 
 
 	// OVERVIEW OR HOME PAGE
-	if (pathName === '/' || pathName === '/overview') {
+	if (pathname === '/' || pathname === '/overview') {
 		// we can read the template overview outside since it's a constant
 		// so we will do so in a function outside to simplify the code
 		res.writeHead(200, { 'content-type': 'text.html' });
@@ -101,7 +104,7 @@ const server = http.createServer((req, res) => {
 	
 	///PRODUCT PAGE 
 }
-else if (pathName == '/product') {
+else if (pathname == '/product') {
 		res.writeHead(200, { 'Content-type': 'text.html' });
 		const product = dataObject[query.id];
 		const output = replaceTemplate(tempProduct, product);
@@ -111,7 +114,7 @@ else if (pathName == '/product') {
 		
 	} 
 	///API PAGE
-	else if (pathName === '/api') {
+	else if (pathname === '/api') {
 		res.writeHead(200, {
 			'Content-type': 'application/json'});
 		res.end(data);
