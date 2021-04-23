@@ -43,18 +43,9 @@ const fs = require('fs'), // enables interaction with the file system
 
 // we can do the sync version for each of the templates bc we are on the top level code (only executed once)
 
-const tempOverview = fs.readFileSync(
-	__dirname + '/templates/overview-template.html',
-	'utf-8'
-);
-const tempCard = fs.readFileSync(
-	`${__dirname}/templates/card-template.html`,
-	'utf-8'
-);
-const tempProduct = fs.readFileSync(
-	`${__dirname}/templates/product-template.html`,
-	'utf-8'
-);
+const tempOverview = fs.readFileSync(__dirname + '/templates/overview-template.html', 'utf-8');
+const tempCard = fs.readFileSync(`${__dirname}/templates/card-template.html`, 'utf-8');
+const tempProduct = fs.readFileSync(`${__dirname}/templates/product-template.html`, 'utf-8');
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 
 const dataObject = JSON.parse(data); // this an array of 5 objects
@@ -75,9 +66,7 @@ const server = http.createServer((req, res) => {
 
 		// // res.end('<h1>This is the overview</h1>');
 
-		const cardsHtml = dataObject
-			.map((product) => replaceTemplate(tempCard, product))
-			.join(''); //join all the elements of the array into one string
+		const cardsHtml = dataObject.map((product) => replaceTemplate(tempCard, product)).join(''); //join all the elements of the array into one string
 
 		const output = tempOverview.replace('{%PRODUCT_CARDS%}', cardsHtml);
 		res.end(output);
