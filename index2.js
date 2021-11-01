@@ -1,23 +1,18 @@
-// const url = require("url");
+// Core modules
 const http = require("http");
 const fs = require("fs");
+const url = require("url");
+
+//third party modules
+const slugify = require('slugify')
+
+
+// our own modules
+const replaceTemplate = require("./modules/replaceTemplate2.js");
 
 //server
 
-const replaceTemplate = (temp, product) => {
-	let output = temp.replace(/{%PRODUCTNAME%}/g, product.productName);
-	output = output.replace(/{%IMAGE%}/g, product.image);
-	output = output.replace(/{%PRICE%}/g, product.price);
-	output = output.replace(/{%QUANTITY%}/g, product.quantity);
-	output = output.replace(/{%FROM%}/g, product.FROM);
-	output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
-	output = output.replace(/{%DESCRIPTION%}/g, product.description);
-	output = output.replace(/{%ID%}/g, product.id);
-	if (!product.organic) {
-		output = output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
-	}
-	return output;
-};
+
 
 const tempOverview = fs.readFileSync(`${__dirname}/templates/overview-template.html`, "utf8");
 const cardTemplate = fs.readFileSync(`${__dirname}/templates/card-template.html`, "utf8");
@@ -26,23 +21,32 @@ const productTemplate = fs.readFileSync(`${__dirname}/templates/product-template
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf8");
 const dataObj = JSON.parse(data);
 
+const slugs = dataObj.map((el)=>
+slugify(el.productName, {lowercase: true})
+)
+// console.log (slugify("Fresh Avocados", {lower:true}))
+console.log (slugs)
 const server = http.createServer((req, res) => {
-	const pathName = req.url;
+	const { query, pathname } = url.parse(req.url, true);
+
 
 	//overview
-	if (pathName === "/" || pathName == "/overview") {
+	if (pathname === "/" || pathname == "/overview") {
 		res.writeHead(200, { "Content-Type": "text/html" });
 
 		const cardsHtml = dataObj.map(el => replaceTemplate(cardTemplate, el)).join("");
-const output = tempOverview.replace('{%PRODUCT_CARDS%}', cardsHtml);
-		console.log(cardsHtml);
+		const output = tempOverview.replace("{%PRODUCT_CARDS%}", cardsHtml);
+		// console.log(cardsHtml);
 
 		res.end(output);
 		//product
-	} else if (pathName === "/product") {
-		res.end("this is the product page");
+	} else if (pathname === "/product") {
+		res.writeHead(200, { "Content-Type": "text/html" })
+		const product = dataObj[query.id]
+		const output = replaceTemplate(productTemplate, product)
+		res.end(output);
 		//API
-	} else if (pathName === "/api") {
+	} else if (pathname === "/api") {
 		res.writeHead(200, { "Content-Type": "application/json" });
 		res.end(data);
 	} else {

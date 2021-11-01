@@ -1,3 +1,4 @@
+// in this case this is a named fucntion. If you have several functions in a module , it's bes to name them. 
 let replaceTemplate = (temp, product)=>{
 	let output = temp.replace(/{%PRODUCTNAME%}/g, product.productName);  // we don't use the quotes and used instead regular {palceholder}/g for global
 output=output.replace(/{%IMAGE%}/g, product.image);
