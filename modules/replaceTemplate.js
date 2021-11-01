@@ -6,7 +6,7 @@ output=output.replace("{%ORIGIN%}", product.from);
 output=output.replace("{%NUTRIENTS%}", product.nutrients);
 output=output.replace("{%QUANTITY%}", product.quantity);
 output=output.replace("{%DESCRIPTION%}", product.description);
-output=output.replace("{%ID%}", product.id);
+output=output.replace(/{%SLUG%}/g, product.slug);
 if(!product.organic){ output=output.replace("{%NOT_ORGANIC%}", "not-organic");}
 return output;
 }

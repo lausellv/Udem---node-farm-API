@@ -58,13 +58,13 @@ const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
 
 const dataObject = JSON.parse(data); // this an array of 5 objects
 
-const slugs = dataObject.map(el => slugify(el.productName, { lower: true }));
+dataObject.map(el => {
+	el["slug"] = slugify(el.productName, { lower: true })});
 // console.log(slugify('Fresh Avocado', {lower:true, replacement: ' '}));
-console.log(slugs);
+
 
 //SERVER
 const server = http.createServer((req, res) => {
-
 	const { query, pathname } = url.parse(req.url, true); // E6 object destructuring
 	// OVERVIEW OR HOME PAGE
 	if (pathname === "/" || pathname === "/overview") {
@@ -80,9 +80,11 @@ const server = http.createServer((req, res) => {
 		res.end(output);
 
 		///PRODUCT PAGE
-	} else if (pathname == "/product") {
+	} else if (pathname.includes ("/product")) {
 		res.writeHead(200, { "Content-type": "text.html" });
-		const product = dataObject[query.id];
+	const slug = pathname.replace('/product/', '')
+		const product = dataObject.filter(el => 
+			el.slug === slug)[0]
 		const output = replaceTemplate(tempProduct, product);
 		res.end(output);
 	}
